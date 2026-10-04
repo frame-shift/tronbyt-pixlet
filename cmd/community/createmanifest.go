@@ -102,11 +102,31 @@ func ManifestPrompt() (*manifest.Manifest, error) {
 		return nil, fmt.Errorf("app creation failed %w", err)
 	}
 
+	// Get the category of the app.
+	fmt.Println("Categories:")
+	fmt.Print(manifest.CategoryGrid(3))
+	categoryPrompt := promptui.Prompt{
+		Label: "Category (enter a number or name)",
+		Validate: func(s string) error {
+			_, err := manifest.ResolveCategory(s)
+			return err
+		},
+	}
+	categoryInput, err := categoryPrompt.Run()
+	if err != nil {
+		return nil, fmt.Errorf("app creation failed %w", err)
+	}
+	category, err := manifest.ResolveCategory(categoryInput)
+	if err != nil {
+		return nil, fmt.Errorf("app creation failed %w", err)
+	}
+
 	return &manifest.Manifest{
-		ID:      manifest.GenerateID(name),
-		Name:    name,
-		Summary: summary,
-		Desc:    desc,
-		Author:  author,
+		ID:       manifest.GenerateID(name),
+		Name:     name,
+		Summary:  summary,
+		Desc:     desc,
+		Author:   author,
+		Category: category,
 	}, nil
 }
